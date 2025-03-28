@@ -1,45 +1,115 @@
 #include "field.hpp"
 #include <SDL2/SDL.h>
 
-void Field::CreateField(Field& field_) {
-    for (int y = 0; y < 15; ++y) {
-        for (int x = 0; x < 10; ++x) {
-            field_.field[y][x] = 0;
-        }
-    }
-}
-void Field::DrawBorderField(SDL_Renderer* renderer_, Field& field_) {
-    SDL_SetRenderDrawColor(renderer_, 0xff, 0xff, 0xff, 0xff);
-    SDL_Rect border =
-    {
-        FIELD_X - 2,
-        FIELD_Y - 2,
-        FIELD_WIDTH * BLOCK_SIZE + 4,
-        FIELD_HEIGHT * BLOCK_SIZE + 4
-    };
-    SDL_RenderDrawRect(renderer_, &border);
-}
-void Field::DrawField(SDL_Renderer* renderer_, Field& field_) {
-    for (int y = 0; y < 15; ++y) {
-        for (int x = 0; x < 10; ++x) {
-            if (field[y][x]) {
-                SDL_Rect cell = {
-                    FIELD_X + BLOCK_SIZE * x,
-                    FIELD_Y + BLOCK_SIZE * y,
-                    BLOCK_SIZE,
-                    BLOCK_SIZE
-                };
-                SDL_SetRenderDrawColor(renderer_, 0xff, 0xff, 0xff, 0xff);
-                SDL_RenderFillRect(renderer_, &cell);
-            } else {
-                SDL_SetRenderDrawColor(renderer_, 0xff, 0xff, 0xff, 0xff);
-                SDL_RenderDrawPoint(renderer_, FIELD_X + BLOCK_SIZE * x + BLOCK_SIZE / 2, FIELD_Y + BLOCK_SIZE * y + BLOCK_SIZE / 2);
+void Field::SplitToField()
+{
+    for (int y = tetramino.position.y; y < tetramino.position.y + 4; ++y) {
+        for (int x = tetramino.position.x; x < tetramino.position.x + 4; ++x) {
+            if (figures[tetramino.blockPos[0]][tetramino.blockPos[1]][y - tetramino.position.y][x - tetramino.position.x]) {
+                field[y][x] = 1;
             }
         }
     }
 }
 
-void Field::ClearFullLines(Field& field_) {
+void Field::CreateTetramino()
+{
+    int NumberNewTetramino = rand() % 7;
+    tetramino.blockPos[0] = NumberNewTetramino;
+    tetramino.blockPos[1] = 0;
+    tetramino.position.x = 3;
+    tetramino.position.y = 0;
+}
+
+bool Field::CheckGameOver()
+{
+    for (int y = tetramino.position.y; y < tetramino.position.y + 4; ++y) {
+        for (int x = tetramino.position.x; x < tetramino.position.x + 4; ++x) {
+            if (figures[tetramino.blockPos[0]][tetramino.blockPos[1]][y - tetramino.position.y][x - tetramino.position.x] && field[y][x]) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool Field::CheckToDown()
+{
+    Tetramino future = tetramino;
+    future.MoveDown();
+    for (int y = future.position.y; y < future.position.y + 4; ++y) {
+        for (int x = future.position.x; x < future.position.x + 4; ++x) {
+            if (figures[future.blockPos[0]][future.blockPos[1]][y - future.position.y][x - future.position.x] && field[y][x]) {
+                return false;
+            }
+            if (figures[future.blockPos[0]][future.blockPos[1]][y - future.position.y][x - future.position.x] && y == 15) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool Field::CheckToLeft()
+{
+    Tetramino future = tetramino;
+    future.MoveLeft();
+    for (int y = future.position.y; y < future.position.y + 4; ++y) {
+        for (int x = future.position.x; x < future.position.x + 4; ++x) {
+            if (figures[future.blockPos[0]][future.blockPos[1]][y - future.position.y][x - future.position.x] && field[y][x]) {
+                return false;
+            }
+            if (figures[future.blockPos[0]][future.blockPos[1]][y - future.position.y][x - future.position.x] && x == -1) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool Field::CheckToRight()
+{
+    Tetramino future = tetramino;
+    future.MoveRight();
+    for (int y = future.position.y; y < future.position.y + 4; ++y) {
+        for (int x = future.position.x; x < future.position.x + 4; ++x) {
+            if (figures[future.blockPos[0]][future.blockPos[1]][y - future.position.y][x - future.position.x] && field[y][x]) {
+                return false;
+            }
+            if (figures[future.blockPos[0]][future.blockPos[1]][y - future.position.y][x - future.position.x] && x == 10) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool Field::CheckRotate()
+{
+    Tetramino future = tetramino;
+    future.Rotate();
+    for (int y = future.position.y; y < future.position.y + 4; ++y) {
+        for (int x = future.position.x; x < future.position.x + 4; ++x) {
+            if (figures[future.blockPos[0]][future.blockPos[1]][y - future.position.y][x - future.position.x] && field[y][x]) {
+                return false;
+            }
+            if (figures[future.blockPos[0]][future.blockPos[1]][y - future.position.y][x - future.position.x] && (y == 15 || x == -1 || x == 10)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void Field::CreateField() {
+    for (int y = 0; y < 15; ++y) {
+        for (int x = 0; x < 10; ++x) {
+            field[y][x] = 0;
+        }
+    }
+}
+
+void Field::ClearFullLines() {
     int now_y = 14;
     bool fill = true;
     for (int y = 14; 0 <= y; --y) {
@@ -63,60 +133,4 @@ void Field::ClearFullLines(Field& field_) {
         }
         now_y -= 1;
     }
-}
-
-void Field::GameOver(SDL_Renderer* renderer_) {
-    const int game_over[15][10] =
-    {
-        1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 
-        1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 
-        1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 
-        1, 1, 1, 2, 0, 0, 1, 2, 0, 2, 
-        0, 0, 2, 0, 2, 0, 0, 2, 0, 2, 
-        0, 0, 2, 2, 2, 3, 3, 2, 0, 2, 
-        0, 0, 2, 0, 2, 3, 0, 0, 2, 0, 
-        3, 0, 3, 0, 0, 3, 3, 3, 0, 0, 
-        3, 3, 3, 0, 0, 3, 0, 0, 0, 0, 
-        3, 0, 3, 0, 0, 3, 3, 3, 0, 0, 
-        3, 0, 4, 4, 4, 0, 0, 4, 4, 0, 
-        0, 0, 4, 0, 0, 0, 0, 4, 0, 4, 
-        0, 0, 4, 4, 4, 0, 0, 4, 4, 0, 
-        0, 0, 4, 0, 0, 0, 0, 4, 0, 4, 
-        0, 0, 4, 4, 4, 0, 0, 4, 0, 4        
-    };
-    for (int y = 0; y < 15; ++y) {
-        for (int x = 0; x < 10; ++x) {
-            SDL_Rect cell = 
-            {
-                FIELD_X + BLOCK_SIZE * x,
-                FIELD_Y + BLOCK_SIZE * y,
-                BLOCK_SIZE,
-                BLOCK_SIZE
-            };
-            switch (game_over[y][x]) 
-            {
-                case 0:
-                    SDL_SetRenderDrawColor(renderer_, 0x00, 0x00, 0x00, 0xff);
-                    SDL_RenderFillRect(renderer_, &cell);
-                    break;
-                case 1:
-                    SDL_SetRenderDrawColor(renderer_, 0xff, 0x00, 0x00, 0xff);
-                    SDL_RenderFillRect(renderer_, &cell);
-                    break;
-                case 2:
-                    SDL_SetRenderDrawColor(renderer_, 0x00, 0xff, 0x00, 0xff);
-                    SDL_RenderFillRect(renderer_, &cell);
-                    break;
-                case 3:
-                    SDL_SetRenderDrawColor(renderer_, 0x00, 0x00, 0xff, 0xff);
-                    SDL_RenderFillRect(renderer_, &cell);
-                    break;
-                case 4:
-                    SDL_SetRenderDrawColor(renderer_, 0xff, 0x00, 0xff, 0xff);
-                    SDL_RenderFillRect(renderer_, &cell);
-                    break;
-            }
-        }
-    }
-    SDL_RenderPresent(renderer_);
 }

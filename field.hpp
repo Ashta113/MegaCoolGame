@@ -1,5 +1,6 @@
 #pragma once
 
+#include "tetromino.hpp"
 #include <SDL2/SDL.h>
 
 const int SCREEN_WIDTH = 850;
@@ -14,11 +15,16 @@ class Field
 {
 public:
     int field[15][10];
+    Tetramino tetramino;
 
-    void CreateField(Field& field_);
-    void DrawBorderField(SDL_Renderer* renderer_, Field& field_);
-    void DrawField(SDL_Renderer* renderer_, Field& field_);
-    void ClearFullLines(Field& field_);
-    void GameOver(SDL_Renderer* renderer_);
+    void SplitToField();
+    void CreateTetramino();
+    bool CheckGameOver();
+    bool CheckToDown();
+    bool CheckToLeft();
+    bool CheckToRight();
+    bool CheckRotate();
+    void CreateField();
+    void ClearFullLines();
 private:
 };

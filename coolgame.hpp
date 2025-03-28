@@ -10,13 +10,16 @@ public:
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
     Field field;
-    Tetramino tetramino;
 
     void init();
     void checkEvents();
     void update();
     void draw();
     void run();
+    void DrawTetramino();
+    void DrawBorderField();
+    void DrawField();
+    void GameOver();
 private:
     bool isRunning;
     bool gameOver;

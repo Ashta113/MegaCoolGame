@@ -1,6 +1,5 @@
 #pragma once
 
-#include "field.hpp"
 #include <SDL2/SDL.h>
 
 inline int figures[7][4][4][4]
@@ -171,18 +170,10 @@ public:
         int y;
     } position;
 
-    void SplitToField(Field& field_, Tetramino& tetramino_);
-    void CreateTetramino(Field& field_, Tetramino& tetramino_);
-    void DrawTetramino(SDL_Renderer* renderer_, Field& field_, Tetramino& tetramino_);
-    bool CheckGameOver(Field& field_, Tetramino& tetramino_);
-    bool CheckToDown(Field& field_, Tetramino& tetramino_);
-    bool CheckToLeft(Field& field_, Tetramino& tetramino_);
-    bool CheckToRight(Field& field_, Tetramino& tetramino_);
-    bool CheckRotate(Field& field_, Tetramino& tetramino_);
-    void MoveDown(Tetramino& tetramino_);
-    void MoveLeft(Tetramino& tetramino_);
-    void MoveRight(Tetramino& tetramino_);
-    void Rotate(Tetramino& tetramino_);
+    void MoveDown();
+    void MoveLeft();
+    void MoveRight();
+    void Rotate();
 private:
 
 };
