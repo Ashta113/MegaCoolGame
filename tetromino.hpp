@@ -161,9 +161,9 @@ inline int figures[7][4][4][4]
 class Tetramino
 {
 public:
-    int color { };
-    int type { };
-    int blockPos[2] { };
+    int color;
+    int type;
+    int blockPos[2];
 
     struct Coordinates
     {

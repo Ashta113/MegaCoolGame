@@ -86,13 +86,15 @@ void Field::GameOver(SDL_Renderer* renderer_) {
     };
     for (int y = 0; y < 15; ++y) {
         for (int x = 0; x < 10; ++x) {
-            SDL_Rect cell = {
+            SDL_Rect cell = 
+            {
                 FIELD_X + BLOCK_SIZE * x,
                 FIELD_Y + BLOCK_SIZE * y,
                 BLOCK_SIZE,
                 BLOCK_SIZE
             };
-            switch (game_over[y][x]) {
+            switch (game_over[y][x]) 
+            {
                 case 0:
                     SDL_SetRenderDrawColor(renderer_, 0x00, 0x00, 0x00, 0xff);
                     SDL_RenderFillRect(renderer_, &cell);

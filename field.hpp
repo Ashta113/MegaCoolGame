@@ -13,7 +13,7 @@ const int FIELD_Y = 50;
 class Field
 {
 public:
-    int field[15][10] { };
+    int field[15][10];
 
     void CreateField(Field& field_);
     void DrawBorderField(SDL_Renderer* renderer_, Field& field_);

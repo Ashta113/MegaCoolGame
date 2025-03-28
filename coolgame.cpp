@@ -2,12 +2,11 @@
 #include <SDL2/SDL.h>
 
 CoolGame::CoolGame():
-    isRunning{true},
-    gameOver{false},
-    fallSpeed{1},
-    lastUpdate{0}
-{
-    
+    isRunning { true },
+    gameOver { false },
+    fallSpeed { 1 },
+    lastUpdate { 0 }
+{ 
 }
 
 CoolGame::~CoolGame()
@@ -20,20 +19,16 @@ CoolGame::~CoolGame()
 void CoolGame::init() 
 {
     SDL_Init(SDL_INIT_VIDEO);
-    window = SDL_CreateWindow("Mega Cool Game", 
-        SDL_WINDOWPOS_CENTERED, 
-        SDL_WINDOWPOS_CENTERED,
-        SCREEN_WIDTH, SCREEN_HEIGHT, 
-        SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Mega Cool Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                              SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, 
-                SDL_RENDERER_ACCELERATED | 
-                SDL_RENDERER_PRESENTVSYNC);
+                SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     isRunning = true;
     gameOver = false;
     field.CreateField(field);
     tetramino.CreateTetramino(field, tetramino);
-
 }
+
 void CoolGame::checkEvents() 
 {
     SDL_Event e;
@@ -42,7 +37,8 @@ void CoolGame::checkEvents()
             isRunning = false;
         }
         else if (e.type == SDL_KEYDOWN && !gameOver) {
-            switch (e.key.keysym.sym) {
+            switch (e.key.keysym.sym) 
+            {
                 case SDLK_LEFT:
                     if (tetramino.CheckToLeft(field, tetramino)) {
                         tetramino.MoveLeft(tetramino);
@@ -72,6 +68,7 @@ void CoolGame::checkEvents()
         }
     }
 }
+
 void CoolGame::update()
 {
     Uint32 currentTime = SDL_GetTicks();
@@ -87,6 +84,7 @@ void CoolGame::update()
         lastUpdate = currentTime;
     }
 }
+
 void CoolGame::draw()
 {
     if (gameOver) {
@@ -101,6 +99,7 @@ void CoolGame::draw()
         SDL_RenderPresent(renderer);
     }
 }
+
 void CoolGame::run()
 {
     while (isRunning) {
