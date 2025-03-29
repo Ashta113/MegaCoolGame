@@ -1,28 +1,34 @@
 #include "tetromino.hpp"
 #include "field.hpp"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 class CoolGame 
 {
 public:
     CoolGame();
     ~CoolGame();
-
-    SDL_Window* window = nullptr;
-    SDL_Renderer* renderer = nullptr;
+    TTF_Font* font;
+    SDL_Window* window;
+    SDL_Renderer* renderer;
+    SDL_Texture* textTexture;
     Field field;
 
     void init();
+    void createNewGame();
     void checkEvents();
     void update();
-    void draw();
-    void run();
     void DrawTetramino();
     void DrawBorderField();
     void DrawField();
+    void DrawText();
+    void draw();
+    void run();
     void GameOver();
 private:
     bool isRunning;
     bool gameOver;
     int fallSpeed;
     int lastUpdate;
+    int score;
 };

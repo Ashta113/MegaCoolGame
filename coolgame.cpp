@@ -1,32 +1,44 @@
 #include "coolgame.hpp"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <string>
+#include <iostream>
 
 CoolGame::CoolGame():
     isRunning { true },
     gameOver { false },
     fallSpeed { 1 },
-    lastUpdate { 0 }
+    lastUpdate { 0 },
+    score { 0 }
 { 
 }
 
 CoolGame::~CoolGame()
 {
+    SDL_DestroyTexture(textTexture);
     SDL_DestroyRenderer(renderer);
+    TTF_CloseFont(font);
     SDL_DestroyWindow(window);
+    TTF_Quit();
     SDL_Quit();
 }
 
 void CoolGame::init() 
 {
     SDL_Init(SDL_INIT_VIDEO);
+    TTF_Init();
     window = SDL_CreateWindow("Mega Cool Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, 
                 SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    isRunning = true;
-    gameOver = false;
+   font = TTF_OpenFont("NotoSans.ttf", 26);
+}
+
+void CoolGame::createNewGame() {
+    score = 0;
     field.CreateField();
     field.CreateTetramino();
+    gameOver = false;
 }
 
 void CoolGame::checkEvents() 
@@ -35,6 +47,9 @@ void CoolGame::checkEvents()
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
             isRunning = false;
+        }
+        else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_r) {
+            createNewGame();
         }
         else if (e.type == SDL_KEYDOWN && !gameOver) {
             switch (e.key.keysym.sym) 
@@ -54,7 +69,7 @@ void CoolGame::checkEvents()
                         field.tetramino.MoveDown();
                     } else {
                         field.SplitToField();
-                        field.ClearFullLines();
+                        score += field.ClearFullLines();
                         field.CreateTetramino();
                         gameOver = field.CheckGameOver();
                     }
@@ -77,36 +92,11 @@ void CoolGame::update()
             field.tetramino.MoveDown();
         } else {
             field.SplitToField();
-            field.ClearFullLines();
+            score += field.ClearFullLines();
             field.CreateTetramino();
             gameOver = field.CheckGameOver();
         }
         lastUpdate = currentTime;
-    }
-}
-
-void CoolGame::draw()
-{
-    if (gameOver) {
-        GameOver();
-        DrawBorderField();
-    } else {
-        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xff);
-        SDL_RenderClear(renderer);
-        DrawTetramino();
-        DrawBorderField();
-        DrawField();
-        SDL_RenderPresent(renderer);
-    }
-}
-
-void CoolGame::run()
-{
-    while (isRunning) {
-        checkEvents();
-        if (!gameOver) update();
-        draw();
-        SDL_Delay(16);
     }
 }
 
@@ -157,6 +147,51 @@ void CoolGame::DrawField() {
                 SDL_RenderDrawPoint(renderer, FIELD_X + BLOCK_SIZE * x + BLOCK_SIZE / 2, FIELD_Y + BLOCK_SIZE * y + BLOCK_SIZE / 2);
             }
         }
+    }
+}
+
+void CoolGame::DrawText() 
+{
+    SDL_Color textColor = {0xff, 0xff, 0xff, 0xff};
+    std::string text = "Score: ";
+    text += std::to_string(score);
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
+    textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_FreeSurface(textSurface);
+    SDL_Rect textRect =
+    {
+        TEXT_X,
+        TEXT_Y,
+        0,
+        0
+    };
+    SDL_QueryTexture(textTexture, NULL, NULL, &textRect.w, &textRect.h);
+    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+}
+
+void CoolGame::draw()
+{
+    if (gameOver) {
+        GameOver();
+        DrawBorderField();
+    } else {
+        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xff);
+        SDL_RenderClear(renderer);
+        DrawTetramino();
+        DrawBorderField();
+        DrawField();
+        DrawText();
+        SDL_RenderPresent(renderer);
+    }
+}
+
+void CoolGame::run()
+{
+    while (isRunning) {
+        checkEvents();
+        if (!gameOver) update();
+        draw();
+        SDL_Delay(16);
     }
 }
 

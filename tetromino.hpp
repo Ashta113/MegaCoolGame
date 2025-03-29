@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SDL2/SDL.h>
-
 inline int figures[7][4][4][4]
 {    
     0, 0, 1, 0, // I 0 deg

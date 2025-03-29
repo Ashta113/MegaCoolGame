@@ -109,7 +109,7 @@ void Field::CreateField() {
     }
 }
 
-void Field::ClearFullLines() {
+int Field::ClearFullLines() {
     int now_y = 14;
     bool fill = true;
     for (int y = 14; 0 <= y; --y) {
@@ -127,10 +127,12 @@ void Field::ClearFullLines() {
             now_y -= 1;
         }
     }
-    while (0 <= now_y) {
+    for (int i = 0; i <= now_y; ++i) {
         for (int x = 0; x < 10; ++x) {
             field[now_y][x] = 0;
         }
-        now_y -= 1;
     }
+    now_y += 1;
+    if (now_y == 4) return now_y * 100 + 100;
+    else return now_y * 100;
 }
