@@ -25,6 +25,7 @@ public:
     bool CheckToLeft();
     bool CheckToRight();
     bool CheckRotate();
+    void DropDown();
     void CreateField();
     int ClearFullLines();
 private:

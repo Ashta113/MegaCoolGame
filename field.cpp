@@ -101,6 +101,13 @@ bool Field::CheckRotate()
     return true;
 }
 
+void Field::DropDown() 
+{
+    while (CheckToDown()) {
+        tetramino.MoveDown();
+    }
+}
+
 void Field::CreateField() {
     for (int y = 0; y < 15; ++y) {
         for (int x = 0; x < 10; ++x) {

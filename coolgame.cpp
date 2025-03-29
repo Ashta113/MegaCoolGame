@@ -39,6 +39,7 @@ void CoolGame::createNewGame() {
     field.CreateField();
     field.CreateTetramino();
     gameOver = false;
+    lastUpdate = SDL_GetTicks();
 }
 
 void CoolGame::checkEvents() 
@@ -54,6 +55,13 @@ void CoolGame::checkEvents()
         else if (e.type == SDL_KEYDOWN && !gameOver) {
             switch (e.key.keysym.sym) 
             {
+                case SDLK_SPACE:
+                    field.DropDown();
+                    field.SplitToField();
+                    score += field.ClearFullLines();
+                    field.CreateTetramino();
+                    gameOver = field.CheckGameOver();
+                    lastUpdate = SDL_GetTicks();
                 case SDLK_LEFT:
                     if (field.CheckToLeft()) {
                         field.tetramino.MoveLeft();
@@ -67,6 +75,7 @@ void CoolGame::checkEvents()
                 case SDLK_DOWN:
                     if (field.CheckToDown()) {
                         field.tetramino.MoveDown();
+                        lastUpdate = SDL_GetTicks();
                     } else {
                         field.SplitToField();
                         score += field.ClearFullLines();
@@ -90,13 +99,14 @@ void CoolGame::update()
     if (currentTime - lastUpdate > (1000 / fallSpeed)) {
         if (field.CheckToDown()) {
             field.tetramino.MoveDown();
+            lastUpdate = SDL_GetTicks();
         } else {
             field.SplitToField();
             score += field.ClearFullLines();
             field.CreateTetramino();
             gameOver = field.CheckGameOver();
+            lastUpdate = SDL_GetTicks();
         }
-        lastUpdate = currentTime;
     }
 }
 
@@ -150,6 +160,27 @@ void CoolGame::DrawField() {
     }
 }
 
+void CoolGame::DrawMirror() 
+{
+    Tetramino clone = field.tetramino;
+    field.DropDown();
+    for (int y = field.tetramino.position.y; y < field.tetramino.position.y + 4; ++y) {
+        for (int x = field.tetramino.position.x; x < field.tetramino.position.x + 4; ++x) {
+            if (figures[field.tetramino.blockPos[0]][field.tetramino.blockPos[1]][y - field.tetramino.position.y][x - field.tetramino.position.x]) {
+                SDL_Rect cell = {
+                    FIELD_X + BLOCK_SIZE * x,
+                    FIELD_Y + BLOCK_SIZE * y,
+                    BLOCK_SIZE,
+                    BLOCK_SIZE
+                };
+                SDL_SetRenderDrawColor(renderer, 0xbb, 0x00, 0xbb, 0xff);
+                SDL_RenderFillRect(renderer, &cell);
+            }
+        }
+    }
+    field.tetramino = clone;
+}
+
 void CoolGame::DrawText() 
 {
     SDL_Color textColor = {0xff, 0xff, 0xff, 0xff};
@@ -174,9 +205,11 @@ void CoolGame::draw()
     if (gameOver) {
         GameOver();
         DrawBorderField();
+        DrawText();
     } else {
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xff);
         SDL_RenderClear(renderer);
+        DrawMirror();
         DrawTetramino();
         DrawBorderField();
         DrawField();

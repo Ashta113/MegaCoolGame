@@ -21,6 +21,7 @@ public:
     void DrawTetramino();
     void DrawBorderField();
     void DrawField();
+    void DrawMirror();
     void DrawText();
     void draw();
     void run();
